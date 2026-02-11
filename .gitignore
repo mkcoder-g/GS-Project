@@ -239,3 +239,8 @@ GameServer/GameServer.vcxproj
 /Compiled
 *.exe
 *.vcxproj
+*.ipch
+.vs/GameServer/v15/Browse.VC.db
+.vs/GameServer/v15/.suo
+Compiled/GameServer.exe
+GameServer/GameServer.vcxproj
