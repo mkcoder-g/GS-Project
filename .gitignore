@@ -244,3 +244,6 @@ GameServer/GameServer.vcxproj
 .vs/GameServer/v15/.suo
 Compiled/GameServer.exe
 GameServer/GameServer.vcxproj
+.vs
+GameServer/Release
+GameServer/GameServer.tlog
