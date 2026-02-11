@@ -247,3 +247,7 @@ GameServer/GameServer.vcxproj
 .vs
 GameServer/Release
 GameServer/GameServer.tlog
+GameServer/GameServer.Build.CppClean.log
+GameServer/GameServer.tlog/GameServer.write.1u.tlog
+Compiled/GameServer.exe
+GameServer/vc141.pdb
