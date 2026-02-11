@@ -1,0 +1,8 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(524,5): warning MSB8004: o diretório Output não termina com uma barra à direita. Essa instância de compilação adicionará a barra conforme necessário para permitir a avaliação adequada do Diretório Output.
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflita com uso de outras bibliotecas; use /NODEFAULTLIB:library
+  Gerando código
+  0 of 12933 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finalizada a geração de código
+  GameServer.vcxproj -> C:\Users\lunag\OneDrive\Área de Trabalho\ProjectMU\GS-Project\Compiled\GameServer.exe
