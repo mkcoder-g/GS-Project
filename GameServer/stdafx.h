@@ -46,13 +46,13 @@
 #include <sqlext.h>
 #include <shellapi.h>
 #include "Singleton.h"
-#include "Util\\lua\\include\\lua.hpp"
+#include "..\\..\\Util\\lua\\include\\lua.hpp"
 
 #pragma comment(lib,"ws2_32.lib")
 #pragma comment(lib,"Rpcrt4.lib")
 #pragma comment(lib,"dbghelp.lib")
 #pragma comment(lib,"Psapi.lib")
-#pragma comment(lib,"Util\\lua\\lua52.lib")
+#pragma comment(lib,"..\\..\\Util\\lua\\lua52.lib")
 
 typedef unsigned __int64 QWORD;
 
