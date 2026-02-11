@@ -237,3 +237,5 @@ GameServer/WingOption.obj
 Compiled/GameServer.exe
 GameServer/GameServer.vcxproj
 /Compiled
+*.exe
+*.vcxproj
