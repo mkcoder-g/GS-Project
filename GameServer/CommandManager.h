@@ -31,6 +31,7 @@ enum eCommandNumber
 	COMMAND_RENAME = 19,
 	COMMAND_DCFRIEND = 20,
 	COMMAND_OFFHELPER = 21,
+	COMMAND_RANK = 28,
 	COMMAND_CUSTOM_STORE = 50,
 	COMMAND_CUSTOM_STORE_OFFLINE = 51,
 	COMMAND_CUSTOM_ATTACK = 52,
@@ -263,6 +264,7 @@ public:
 	void CommandSetBuff(LPOBJ lpObj,char* arg);
 	void CommandAddPointAutoProc(LPOBJ lpObj);
 	void CommandResetAutoProc(LPOBJ lpObj);
+	void CommandRank(LPOBJ lpObj, char* arg);
 	void DGCommandResetRecv(SDHP_COMMAND_RESET_RECV* lpMsg);
 	void DGCommandMasterResetRecv(SDHP_COMMAND_MASTER_RESET_RECV* lpMsg);
 	void DGCommandRenameRecv(SDHP_COMMAND_RENAME_RECV* lpMsg);

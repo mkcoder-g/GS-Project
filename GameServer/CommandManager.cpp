@@ -565,6 +565,10 @@ void CCommandManager::ManagementCore(LPOBJ lpObj,char* message) // OK
 		case COMMAND_SET_BUFF:
 			this->CommandSetBuff(lpObj,argument);
 			break;
+
+		case COMMAND_RANK:
+			this->CommandRank(lpObj, message);
+			break;
 	}
 }
 
@@ -2980,4 +2984,27 @@ void CCommandManager::DGCommandBanCharacterRecv(SDHP_COMMAND_BAN_CHARACTER_RECV*
 	{
 		gNotice->GCNoticeSend(lpObj->Index,1,0,0,0,0,0,gMessage->GetMessage(695));
 	}
+}
+
+void CCommandManager::CommandRank(LPOBJ lpObj, char* arg) // OK
+{
+	if (gObjIsConnectedGP(lpObj->Index) == 0)
+	{
+		return;
+	}
+
+	gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "========== [SUAS ESTATISTICAS] ==========");
+
+	// Level
+	gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "Nivel: %d", lpObj->Level);
+
+	// Resets
+	gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "Resets: %d", lpObj->Reset);
+
+	// Master Resets
+	gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "Master Resets: %d", lpObj->MasterReset);
+
+	// Removi as linhas de Kills e Cálculo de Reset para evitar erros de compilação por enquanto.
+
+	gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "=========================================");
 }
