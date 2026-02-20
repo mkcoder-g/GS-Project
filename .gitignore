@@ -251,3 +251,6 @@ GameServer/GameServer.Build.CppClean.log
 GameServer/GameServer.tlog/GameServer.write.1u.tlog
 Compiled/GameServer.exe
 GameServer/vc141.pdb
+*.pdb
+*.vcxproj
+*.tlog
