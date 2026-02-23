@@ -249,10 +249,10 @@ bool CSocketManager::DataRecv(int index,IO_MAIN_BUFFER* lpIoBuffer) // OK
 
 	BYTE* lpMsg = lpIoBuffer->buff;
 
-	int count=0,size=0,DecSize=0,DecEncrypt=0,DecSerial=0;
-	static BYTE DecBuff[MAX_MAIN_PACKET_SIZE];
-	static QUEUE_INFO QueueInfo;
-	BYTE header,head;
+	int count = 0, size = 0, DecSize = 0, DecEncrypt = 0, DecSerial = 0;
+	BYTE DecBuff[MAX_MAIN_PACKET_SIZE];
+	QUEUE_INFO QueueInfo;
+	BYTE header, head;
 
 	while(true)
 	{
@@ -422,9 +422,9 @@ bool CSocketManager::DataSend(int index,BYTE* lpMsg,int size) // OK
 		return 0;
 	}
 
-	static BYTE send[MAX_MAIN_PACKET_SIZE];
+	BYTE send[MAX_MAIN_PACKET_SIZE];
 
-	memcpy(send,lpMsg,size);
+	memcpy(send, lpMsg, size);
 
 	if(lpMsg[0] == 0xC3 || lpMsg[0] == 0xC4)
 	{
@@ -795,37 +795,34 @@ DWORD WINAPI CSocketManager::ServerWorkerThread(CSocketManager* lpSocketManager)
 	DWORD index;
 	LPOVERLAPPED lpOverlapped;
 
-	while(true)
+	while (true)
 	{
-		if(GetQueuedCompletionStatus(lpSocketManager->m_CompletionPort,&IoSize,&index,&lpOverlapped,INFINITE) == 0)
+		if (GetQueuedCompletionStatus(lpSocketManager->m_CompletionPort, &IoSize, &index, &lpOverlapped, INFINITE) == 0)
 		{
-			if(lpOverlapped == 0 || (GetLastError() != ERROR_NETNAME_DELETED && GetLastError() != ERROR_CONNECTION_ABORTED && GetLastError() != ERROR_OPERATION_ABORTED && GetLastError() != ERROR_SEM_TIMEOUT))
+			if (lpOverlapped == 0 || (GetLastError() != ERROR_NETNAME_DELETED && GetLastError() != ERROR_CONNECTION_ABORTED && GetLastError() != ERROR_OPERATION_ABORTED && GetLastError() != ERROR_SEM_TIMEOUT))
 			{
 				return 0;
 			}
 		}
 
-		lpSocketManager->m_critical.lock();
+		// A trava global (m_critical.lock) foi removida daqui! As 8 threads agora rodam livres.
 
-		if(IoSize == 0 && index == 0 && lpOverlapped == 0)
+		if (IoSize == 0 && index == 0 && lpOverlapped == 0)
 		{
-			lpSocketManager->m_critical.unlock();
 			return 0;
 		}
 
 		IO_CONTEXT* lpIoContext = (IO_CONTEXT*)lpOverlapped;
 
-		switch(lpIoContext->IoType)
+		switch (lpIoContext->IoType)
 		{
-			case IO_RECV:
-				lpSocketManager->OnRecv(index,IoSize,(IO_RECV_CONTEXT*)lpIoContext);
-				break;
-			case IO_SEND:
-				lpSocketManager->OnSend(index,IoSize,(IO_SEND_CONTEXT*)lpIoContext);
-				break;
+		case IO_RECV:
+			lpSocketManager->OnRecv(index, IoSize, (IO_RECV_CONTEXT*)lpIoContext);
+			break;
+		case IO_SEND:
+			lpSocketManager->OnSend(index, IoSize, (IO_SEND_CONTEXT*)lpIoContext);
+			break;
 		}
-
-		lpSocketManager->m_critical.unlock();
 	}
 
 	return 0;
@@ -835,12 +832,12 @@ DWORD WINAPI CSocketManager::ServerQueueThread(CSocketManager* lpSocketManager) 
 {
 	while(true)
 	{
-		if(WaitForSingleObject(lpSocketManager->m_ServerQueueSemaphore,INFINITE) == WAIT_FAILED)
+		if (WaitForSingleObject(lpSocketManager->m_ServerQueueSemaphore, INFINITE) == WAIT_FAILED)
 		{
 			break;
 		}
 
-		static QUEUE_INFO QueueInfo;
+		QUEUE_INFO QueueInfo;
 
 		if(lpSocketManager->m_ServerQueue.GetFromQueue(&QueueInfo) != 0)
 		{
