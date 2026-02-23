@@ -1053,7 +1053,7 @@ void CDevilSquare::StageSpawn(DEVIL_SQUARE_LEVEL* lpLevel,int Stage) // OK
 
 void CDevilSquare::SetMonster(DEVIL_SQUARE_LEVEL* lpLevel,int MonsterClass,int MaxRegenTime) // OK
 {
-	for(int n=0;n < gMonsterSetBase->m_count;n++)
+	for(int n=0;n < (int)gMonsterSetBase->m_MonsterSetBaseInfo.size();n++)
 	{
 		MONSTER_SET_BASE_INFO* lpInfo = &gMonsterSetBase->m_MonsterSetBaseInfo[n];
 

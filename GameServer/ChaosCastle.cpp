@@ -1101,7 +1101,7 @@ void CChaosCastle::StageSpawn(CHAOS_CASTLE_LEVEL* lpLevel,int Stage) // OK
 
 void CChaosCastle::SetMonster(CHAOS_CASTLE_LEVEL* lpLevel,int MonsterClass,int MaxRegenTime) // OK
 {
-	for(int n = 0; n < gMonsterSetBase->m_count; n++)
+	for(int n = 0; n < (int)gMonsterSetBase->m_MonsterSetBaseInfo.size(); n++)
 	{
 		if(lpLevel->MaxMonster >= MAX_CC_MONSTER)
 		{

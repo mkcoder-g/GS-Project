@@ -307,7 +307,7 @@ long CMonsterManager::GetMonsterItem(int level,int excellent,int socket) // OK
 
 void CMonsterManager::SetMonsterData() // OK
 {
-	for(int n=0;n < gMonsterSetBase->m_count;n++)
+	for(int n=0;n < (int)gMonsterSetBase->m_MonsterSetBaseInfo.size();n++)
 	{
 		MONSTER_SET_BASE_INFO* lpInfo = &gMonsterSetBase->m_MonsterSetBaseInfo[n];
 

@@ -201,7 +201,7 @@ bool gObjSetPosMonster(int aIndex,int number) // OK
 
 	LPOBJ lpObj = &gObj[aIndex];
 
-	if(number < 0 || number > MAX_MSB_MONSTER)
+	if (number < 0 || number >= (int)gMonsterSetBase->m_MonsterSetBaseInfo.size())
 	{
 		return 0;
 	}
