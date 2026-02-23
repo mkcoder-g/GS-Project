@@ -196,222 +196,236 @@ void CObjectManager::ObjectSetStateCreate(int aIndex) // OK
 
 void CObjectManager::ObjectSetStateProc() // OK
 {
-	for(int n=0;n < MAX_OBJECT;n++)
+	// 1. Loop apenas para Monstros e NPCs
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++)
 	{
-		if(gObjIsConnected(n) == 0)
+		if (gObjIsConnected(n) == 0)
 		{
 			continue;
 		}
 
 		LPOBJ lpObj = &gObj[n];
 
-		lpObj->Teleport = ((lpObj->Teleport==3)?0:lpObj->Teleport);
+		lpObj->Teleport = ((lpObj->Teleport == 3) ? 0 : lpObj->Teleport);
 
-		if(lpObj->State == OBJECT_CREATE)
+		if (lpObj->State == OBJECT_CREATE)
 		{
 			lpObj->State = OBJECT_PLAYING;
-			lpObj->RegenOk = ((lpObj->RegenOk==3)?0:lpObj->RegenOk);
+			lpObj->RegenOk = ((lpObj->RegenOk == 3) ? 0 : lpObj->RegenOk);
 		}
 
-		if(lpObj->Type == OBJECT_MONSTER)
+		if (lpObj->DieRegen != 2)
 		{
-			if(lpObj->DieRegen != 2)
-			{
-				continue;
-			}
-
-			lpObj->AttackerKilled = 0;
-
-			if(lpObj->CurrentAI != 0 && lpObj->RegenType != 0)
-			{
-				continue;
-			}
-			if(BC_MAP_RANGE(lpObj->Map) != 0 && lpObj->Class >= 131 && lpObj->Class <= 134)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(CC_MAP_RANGE(lpObj->Map) != 0)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Map == MAP_CRYWOLF && gCrywolf->GetCrywolfState() == CRYWOLF_STATE_READY)
-			{
-				continue;
-			}
-
-			if(lpObj->Map == MAP_KANTURU3)
-			{
-				continue;
-			}
-
-			if(lpObj->Attribute == ATTRIBUTE_SUMMON)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Attribute == ATTRIBUTE_CASTLE || lpObj->Attribute == ATTRIBUTE_ARCA || lpObj->Attribute == ATTRIBUTE_ACHERON)
-			{
-				if(lpObj->Class == 295 || lpObj->Class >= 300 && lpObj->Class <= 303)
-				{
-					gObjDel(lpObj->Index);
-					continue;
-				}
-
-				if((GetTickCount()-lpObj->LastCheckTick) > 600000)
-				{
-					gObjDel(lpObj->Index);
-					continue;
-				}
-			}
-
-			if(lpObj->Class == 278)
-			{
-				gLifeStone->DeleteLifeStone(lpObj->Index);
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Class == 286 || lpObj->Class == 287)
-			{
-				gMercenary->DeleteMercenary(lpObj->Index);
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Class >= 647 && lpObj->Class <= 650)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Class >= 652 && lpObj->Class <= 657)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			if(lpObj->Class >= 674 && lpObj->Class <= 677)
-			{
-				gObjDel(lpObj->Index);
-				continue;
-			}
-
-			lpObj->Live = 1;
-			lpObj->ViewState = VIEW_STATE_NONE;
-			lpObj->Teleport = 0;
-			lpObj->Life = lpObj->MaxLife+lpObj->AddLife;
-			lpObj->Mana = lpObj->MaxMana+lpObj->AddMana;
-
-			gEffectManager->ClearAllEffect(lpObj);
-
-			if(gObjMonsterRegen(lpObj) == 0)
-			{
-				continue;
-			}
-
-			lpObj->DieRegen = 0;
-			lpObj->State = OBJECT_CREATE;
-
-			gObjViewportListProtocolCreate(lpObj);
+			continue;
 		}
 
-		if(lpObj->Type == OBJECT_USER)
+		lpObj->AttackerKilled = 0;
+
+		if (lpObj->CurrentAI != 0 && lpObj->RegenType != 0)
 		{
-			if(lpObj->DieRegen != 2)
-			{
-				continue;
-			}
-
-			lpObj->Live = 1;
-			lpObj->ViewState = VIEW_STATE_NONE;
-			lpObj->Teleport = 0;
-			lpObj->Life = lpObj->MaxLife+lpObj->AddLife;
-			lpObj->Mana = lpObj->MaxMana+lpObj->AddMana;
-			lpObj->BP = lpObj->MaxBP+lpObj->AddBP;
-			
-			lpObj->Shield = lpObj->MaxShield+lpObj->AddShield;
-
-			lpObj->MiniMapState = 0;
-			lpObj->MiniMapValue = -1;
-			lpObj->HPAutoRecuperationTime = GetTickCount();
-			lpObj->MPAutoRecuperationTime = GetTickCount();
-			lpObj->BPAutoRecuperationTime = GetTickCount();
-			lpObj->SDAutoRecuperationTime = GetTickCount();
-			lpObj->ResurrectionTalismanActive = 1;
-			lpObj->ResurrectionTalismanMap = lpObj->Map;
-			lpObj->ResurrectionTalismanX = lpObj->X;
-			lpObj->ResurrectionTalismanY = lpObj->Y;
-
-			memset(lpObj->SelfDefenseTime,0,sizeof(lpObj->SelfDefenseTime));
-
-			gObjTimeCheckSelfDefense(lpObj);
-
-			gEffectManager->ClearAllEffect(lpObj);
-
-			gObjClearViewport(lpObj);
-
-			gDarkSpirit[lpObj->Index].SetMode(DARK_SPIRIT_MODE_NORMAL,-1);
-
-			switch(lpObj->KillerType)
-			{
-				case 0:
-					if(this->CharacterGetRespawnLocation(lpObj) == 0)
-					{
-						gMap[lpObj->Map].GetMapRandomPos(&lpObj->X,&lpObj->Y,5);
-					}
-					break;
-				case 1:
-					if(this->CharacterGetRespawnLocation(lpObj) == 0)
-					{
-						gMap[lpObj->Map].GetMapRandomPos(&lpObj->X,&lpObj->Y,5);
-					}
-					break;
-				case 2:
-					if(lpObj->Guild == 0 || lpObj->Guild->WarType == GUILD_WAR_TYPE_NORMAL)
-					{
-						gMap[lpObj->Map].GetMapRandomPos(&lpObj->X,&lpObj->Y,18);
-					}
-					else
-					{
-						gBattleSoccer->GetMapRandomPos(&lpObj->X,&lpObj->Y);
-					}
-					break;
-				case 3:
-					gDuel->RespawnDuelUser(lpObj);
-					break;
-			}
-
-			if(this->CharacterMapServerMove(lpObj->Index,lpObj->Map,lpObj->X,lpObj->Y) != 0)
-			{
-				continue;
-			}
-
-			gScriptLoader->OnUserRespawn(lpObj->Index,lpObj->KillerType);
-
-			lpObj->TX = lpObj->X;
-			lpObj->TY = lpObj->Y;
-			lpObj->PathCur = 0;
-			lpObj->PathCount = 0;
-			lpObj->PathStartEnd = 0;
-			lpObj->DieRegen = 0;
-			lpObj->State = OBJECT_CREATE;
-
-			GCCharacterRegenSend(lpObj);
-
-			gObjViewportListProtocolCreate(lpObj);
-
-			this->CharacterUpdateMapEffect(lpObj);
-
-			gHackMoveSpeedCheck[lpObj->Index].Reset();
+			continue;
 		}
+		if (BC_MAP_RANGE(lpObj->Map) != 0 && lpObj->Class >= 131 && lpObj->Class <= 134)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (CC_MAP_RANGE(lpObj->Map) != 0)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Map == MAP_CRYWOLF && gCrywolf->GetCrywolfState() == CRYWOLF_STATE_READY)
+		{
+			continue;
+		}
+
+		if (lpObj->Map == MAP_KANTURU3)
+		{
+			continue;
+		}
+
+		if (lpObj->Attribute == ATTRIBUTE_SUMMON)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Attribute == ATTRIBUTE_CASTLE || lpObj->Attribute == ATTRIBUTE_ARCA || lpObj->Attribute == ATTRIBUTE_ACHERON)
+		{
+			if (lpObj->Class == 295 || lpObj->Class >= 300 && lpObj->Class <= 303)
+			{
+				gObjDel(lpObj->Index);
+				continue;
+			}
+
+			if ((GetTickCount() - lpObj->LastCheckTick) > 600000)
+			{
+				gObjDel(lpObj->Index);
+				continue;
+			}
+		}
+
+		if (lpObj->Class == 278)
+		{
+			gLifeStone->DeleteLifeStone(lpObj->Index);
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Class == 286 || lpObj->Class == 287)
+		{
+			gMercenary->DeleteMercenary(lpObj->Index);
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Class >= 647 && lpObj->Class <= 650)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Class >= 652 && lpObj->Class <= 657)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		if (lpObj->Class >= 674 && lpObj->Class <= 677)
+		{
+			gObjDel(lpObj->Index);
+			continue;
+		}
+
+		lpObj->Live = 1;
+		lpObj->ViewState = VIEW_STATE_NONE;
+		lpObj->Teleport = 0;
+		lpObj->Life = lpObj->MaxLife + lpObj->AddLife;
+		lpObj->Mana = lpObj->MaxMana + lpObj->AddMana;
+
+		gEffectManager->ClearAllEffect(lpObj);
+
+		if (gObjMonsterRegen(lpObj) == 0)
+		{
+			continue;
+		}
+
+		lpObj->DieRegen = 0;
+		lpObj->State = OBJECT_CREATE;
+
+		gObjViewportListProtocolCreate(lpObj);
 	}
 
-	for(int n=0;n < MAX_MAP;n++)
+	// 2. Loop apenas para Jogadores
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
+	{
+		if (gObjIsConnected(n) == 0)
+		{
+			continue;
+		}
+
+		LPOBJ lpObj = &gObj[n];
+
+		lpObj->Teleport = ((lpObj->Teleport == 3) ? 0 : lpObj->Teleport);
+
+		if (lpObj->State == OBJECT_CREATE)
+		{
+			lpObj->State = OBJECT_PLAYING;
+			lpObj->RegenOk = ((lpObj->RegenOk == 3) ? 0 : lpObj->RegenOk);
+		}
+
+		if (lpObj->DieRegen != 2)
+		{
+			continue;
+		}
+
+		lpObj->Live = 1;
+		lpObj->ViewState = VIEW_STATE_NONE;
+		lpObj->Teleport = 0;
+		lpObj->Life = lpObj->MaxLife + lpObj->AddLife;
+		lpObj->Mana = lpObj->MaxMana + lpObj->AddMana;
+		lpObj->BP = lpObj->MaxBP + lpObj->AddBP;
+
+		lpObj->Shield = lpObj->MaxShield + lpObj->AddShield;
+
+		lpObj->MiniMapState = 0;
+		lpObj->MiniMapValue = -1;
+		lpObj->HPAutoRecuperationTime = GetTickCount();
+		lpObj->MPAutoRecuperationTime = GetTickCount();
+		lpObj->BPAutoRecuperationTime = GetTickCount();
+		lpObj->SDAutoRecuperationTime = GetTickCount();
+		lpObj->ResurrectionTalismanActive = 1;
+		lpObj->ResurrectionTalismanMap = lpObj->Map;
+		lpObj->ResurrectionTalismanX = lpObj->X;
+		lpObj->ResurrectionTalismanY = lpObj->Y;
+
+		memset(lpObj->SelfDefenseTime, 0, sizeof(lpObj->SelfDefenseTime));
+
+		gObjTimeCheckSelfDefense(lpObj);
+
+		gEffectManager->ClearAllEffect(lpObj);
+
+		gObjClearViewport(lpObj);
+
+		gDarkSpirit[lpObj->Index].SetMode(DARK_SPIRIT_MODE_NORMAL, -1);
+
+		switch (lpObj->KillerType)
+		{
+		case 0:
+			if (this->CharacterGetRespawnLocation(lpObj) == 0)
+			{
+				gMap[lpObj->Map].GetMapRandomPos(&lpObj->X, &lpObj->Y, 5);
+			}
+			break;
+		case 1:
+			if (this->CharacterGetRespawnLocation(lpObj) == 0)
+			{
+				gMap[lpObj->Map].GetMapRandomPos(&lpObj->X, &lpObj->Y, 5);
+			}
+			break;
+		case 2:
+			if (lpObj->Guild == 0 || lpObj->Guild->WarType == GUILD_WAR_TYPE_NORMAL)
+			{
+				gMap[lpObj->Map].GetMapRandomPos(&lpObj->X, &lpObj->Y, 18);
+			}
+			else
+			{
+				gBattleSoccer->GetMapRandomPos(&lpObj->X, &lpObj->Y);
+			}
+			break;
+		case 3:
+			gDuel->RespawnDuelUser(lpObj);
+			break;
+		}
+
+		if (this->CharacterMapServerMove(lpObj->Index, lpObj->Map, lpObj->X, lpObj->Y) != 0)
+		{
+			continue;
+		}
+
+		gScriptLoader->OnUserRespawn(lpObj->Index, lpObj->KillerType);
+
+		lpObj->TX = lpObj->X;
+		lpObj->TY = lpObj->Y;
+		lpObj->PathCur = 0;
+		lpObj->PathCount = 0;
+		lpObj->PathStartEnd = 0;
+		lpObj->DieRegen = 0;
+		lpObj->State = OBJECT_CREATE;
+
+		GCCharacterRegenSend(lpObj);
+
+		gObjViewportListProtocolCreate(lpObj);
+
+		this->CharacterUpdateMapEffect(lpObj);
+
+		gHackMoveSpeedCheck[lpObj->Index].Reset();
+	}
+
+	for (int n = 0; n < MAX_MAP; n++)
 	{
 		gMap[n].StateSetDestroy();
 	}
@@ -515,62 +529,61 @@ void CObjectManager::ObjectStateAttackProc(LPOBJ lpObj,int MessageCode,int aInde
 
 void CObjectManager::ObjectMoveProc() // OK
 {
-	for(int n=0;n < MAX_OBJECT;n++)
+	// 1. Loop para Monstros
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++)
 	{
-		if(gObjIsConnected(n) == 0)
+		if (gObjIsConnected(n) == 0)
 		{
 			continue;
 		}
 
 		LPOBJ lpObj = &gObj[n];
 
-		if(lpObj->State != OBJECT_PLAYING)
+		if (lpObj->State != OBJECT_PLAYING)
 		{
 			continue;
 		}
 
-		if(lpObj->CurrentAI != 0 && (lpObj->Type == OBJECT_MONSTER || lpObj->Type == OBJECT_NPC))
+		if (lpObj->CurrentAI != 0) // Monstro AI não usa esse path genérico
 		{
 			continue;
 		}
 
-		if(lpObj->PathCount == 0 || gEffectManager->CheckStunEffect(lpObj) != 0 || gEffectManager->CheckImmobilizeEffect(lpObj) != 0)
+		if (lpObj->PathCount == 0 || gEffectManager->CheckStunEffect(lpObj) != 0 || gEffectManager->CheckImmobilizeEffect(lpObj) != 0)
 		{
 			continue;
 		}
 
-		if(lpObj->Type == OBJECT_MONSTER && (lpObj->Attribute == ATTRIBUTE_KALIMA || lpObj->Class == 131 || lpObj->Class == 132 || lpObj->Class == 133 || lpObj->Class == 134 || lpObj->Class == 204 || lpObj->Class == 205 || lpObj->Class == 206 || lpObj->Class == 207 || lpObj->Class == 208 || lpObj->Class == 209 || lpObj->Class == 216 || lpObj->Class == 217 || lpObj->Class == 218 || lpObj->Class == 219 || lpObj->Class == 277 || lpObj->Class == 278 || lpObj->Class == 283 || lpObj->Class == 288 || lpObj->Class == 524 || lpObj->Class == 525 || lpObj->Class == 527 || lpObj->Class == 528))
+		if (lpObj->Attribute == ATTRIBUTE_KALIMA || lpObj->Class == 131 || lpObj->Class == 132 || lpObj->Class == 133 || lpObj->Class == 134 || lpObj->Class == 204 || lpObj->Class == 205 || lpObj->Class == 206 || lpObj->Class == 207 || lpObj->Class == 208 || lpObj->Class == 209 || lpObj->Class == 216 || lpObj->Class == 217 || lpObj->Class == 218 || lpObj->Class == 219 || lpObj->Class == 277 || lpObj->Class == 278 || lpObj->Class == 283 || lpObj->Class == 288 || lpObj->Class == 524 || lpObj->Class == 525 || lpObj->Class == 527 || lpObj->Class == 528)
 		{
 			continue;
 		}
 
 		DWORD MoveTime = 0;
 
-		if((lpObj->PathDir[lpObj->PathCur]%2) == 0)
+		if ((lpObj->PathDir[lpObj->PathCur] % 2) == 0)
 		{
-			MoveTime = (DWORD)((lpObj->MoveSpeed+((lpObj->DelayLevel==0)?0:300))*(double)1.3);
+			MoveTime = (DWORD)((lpObj->MoveSpeed + ((lpObj->DelayLevel == 0) ? 0 : 300))*(double)1.3);
 		}
 		else
 		{
-			MoveTime = (DWORD)((lpObj->MoveSpeed+((lpObj->DelayLevel==0)?0:300))*(double)1.0);
+			MoveTime = (DWORD)((lpObj->MoveSpeed + ((lpObj->DelayLevel == 0) ? 0 : 300))*(double)1.0);
 		}
 
-		if((GetTickCount()-lpObj->PathTime) > MoveTime && lpObj->PathCur < (MAX_ROAD_PATH_TABLE-1))
+		if ((GetTickCount() - lpObj->PathTime) > MoveTime && lpObj->PathCur < (MAX_ROAD_PATH_TABLE - 1))
 		{
-			if(gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur],lpObj->PathY[lpObj->PathCur],4) != 0 || gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur],lpObj->PathY[lpObj->PathCur],8) != 0)
+			if (gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur], lpObj->PathY[lpObj->PathCur], 4) != 0 || gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur], lpObj->PathY[lpObj->PathCur], 8) != 0)
 			{
 				lpObj->PathCur = 0;
 				lpObj->PathCount = 0;
 				lpObj->PathTime = GetTickCount();
-				lpObj->PathStartEnd = ((lpObj->Type==OBJECT_USER)?lpObj->PathStartEnd:0);
+				lpObj->PathStartEnd = 0;
 
-				memset(lpObj->PathX,0,sizeof(lpObj->PathX));
+				memset(lpObj->PathX, 0, sizeof(lpObj->PathX));
+				memset(lpObj->PathY, 0, sizeof(lpObj->PathY));
+				memset(lpObj->PathOri, 0, sizeof(lpObj->PathOri));
 
-				memset(lpObj->PathY,0,sizeof(lpObj->PathY));
-
-				memset(lpObj->PathOri,0,sizeof(lpObj->PathOri));
-
-				gObjSetPosition(lpObj->Index,lpObj->X,lpObj->Y);
+				gObjSetPosition(lpObj->Index, lpObj->X, lpObj->Y);
 			}
 			else
 			{
@@ -579,11 +592,74 @@ void CObjectManager::ObjectMoveProc() // OK
 				lpObj->Dir = lpObj->PathDir[lpObj->PathCur];
 				lpObj->PathTime = GetTickCount();
 
-				if((++lpObj->PathCur) >= lpObj->PathCount)
+				if ((++lpObj->PathCur) >= lpObj->PathCount)
 				{
 					lpObj->PathCur = 0;
 					lpObj->PathCount = 0;
-					lpObj->PathStartEnd = ((lpObj->Type==OBJECT_USER)?lpObj->PathStartEnd:0);
+					lpObj->PathStartEnd = 0;
+				}
+			}
+		}
+	}
+
+	// 2. Loop para Jogadores
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
+	{
+		if (gObjIsConnected(n) == 0)
+		{
+			continue;
+		}
+
+		LPOBJ lpObj = &gObj[n];
+
+		if (lpObj->State != OBJECT_PLAYING)
+		{
+			continue;
+		}
+
+		if (lpObj->PathCount == 0 || gEffectManager->CheckStunEffect(lpObj) != 0 || gEffectManager->CheckImmobilizeEffect(lpObj) != 0)
+		{
+			continue;
+		}
+
+		DWORD MoveTime = 0;
+
+		if ((lpObj->PathDir[lpObj->PathCur] % 2) == 0)
+		{
+			MoveTime = (DWORD)((lpObj->MoveSpeed + ((lpObj->DelayLevel == 0) ? 0 : 300))*(double)1.3);
+		}
+		else
+		{
+			MoveTime = (DWORD)((lpObj->MoveSpeed + ((lpObj->DelayLevel == 0) ? 0 : 300))*(double)1.0);
+		}
+
+		if ((GetTickCount() - lpObj->PathTime) > MoveTime && lpObj->PathCur < (MAX_ROAD_PATH_TABLE - 1))
+		{
+			if (gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur], lpObj->PathY[lpObj->PathCur], 4) != 0 || gMap[lpObj->Map].CheckAttr(lpObj->PathX[lpObj->PathCur], lpObj->PathY[lpObj->PathCur], 8) != 0)
+			{
+				lpObj->PathCur = 0;
+				lpObj->PathCount = 0;
+				lpObj->PathTime = GetTickCount();
+				lpObj->PathStartEnd = lpObj->PathStartEnd;
+
+				memset(lpObj->PathX, 0, sizeof(lpObj->PathX));
+				memset(lpObj->PathY, 0, sizeof(lpObj->PathY));
+				memset(lpObj->PathOri, 0, sizeof(lpObj->PathOri));
+
+				gObjSetPosition(lpObj->Index, lpObj->X, lpObj->Y);
+			}
+			else
+			{
+				lpObj->X = lpObj->PathX[lpObj->PathCur];
+				lpObj->Y = lpObj->PathY[lpObj->PathCur];
+				lpObj->Dir = lpObj->PathDir[lpObj->PathCur];
+				lpObj->PathTime = GetTickCount();
+
+				if ((++lpObj->PathCur) >= lpObj->PathCount)
+				{
+					lpObj->PathCur = 0;
+					lpObj->PathCount = 0;
+					lpObj->PathStartEnd = lpObj->PathStartEnd;
 				}
 			}
 		}
@@ -592,42 +668,56 @@ void CObjectManager::ObjectMoveProc() // OK
 
 void CObjectManager::ObjectMonsterAndMsgProc() // OK
 {
-	for(int n=0;n < MAX_OBJECT;n++)
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++)
 	{
-		if(gObjIsConnected(n) != 0)
+		if (gObjIsConnected(n) != 0)
 		{
-			if(gObj[n].Type == OBJECT_MONSTER || gObj[n].Type == OBJECT_NPC)
+			if (gObj[n].CurrentAI == 0)
 			{
-				if(gObj[n].CurrentAI != 0)
-				{
-					continue;
-				}
-				
 				this->ObjectMsgProc(&gObj[n]);
 				gObjMonsterUpdateProc(&gObj[n]);
-			}
-			else
-			{
-				gDarkSpirit[n].MainProc();
-				gHackMoveSpeedCheck[n].MainProc();
-				gObjSkillNovaCheckTime(&gObj[n]);
-				this->ObjectMsgProc(&gObj[n]);
-				gCustomAttack->MainProc(&gObj[n]);
-				gCustomPick->MainProc(&gObj[n]);
-				gCustomPotion->MainProc(&gObj[n]);
 			}
 		}
 	}
 
-	for(int n=0;n < MAX_OBJECT;n++)
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
 	{
-		if(gObjIsConnected(n) != 0)
+		if (gObjIsConnected(n) != 0)
 		{
-			for(int i=0;i < MAX_MONSTER_SEND_ATTACK_MSG;i++)
+			gDarkSpirit[n].MainProc();
+			gHackMoveSpeedCheck[n].MainProc();
+			gObjSkillNovaCheckTime(&gObj[n]);
+			this->ObjectMsgProc(&gObj[n]);
+			gCustomAttack->MainProc(&gObj[n]);
+			gCustomPick->MainProc(&gObj[n]);
+			gCustomPotion->MainProc(&gObj[n]);
+		}
+	}
+
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++)
+	{
+		if (gObjIsConnected(n) != 0)
+		{
+			for (int i = 0; i < MAX_MONSTER_SEND_ATTACK_MSG; i++)
 			{
-				if(gSMAttackProcMsg[n][i].MsgCode != -1 && GetTickCount() > ((DWORD)gSMAttackProcMsg[n][i].MsgTime))
+				if (gSMAttackProcMsg[n][i].MsgCode != -1 && GetTickCount() > ((DWORD)gSMAttackProcMsg[n][i].MsgTime))
 				{
-					this->ObjectStateAttackProc(&gObj[n],gSMAttackProcMsg[n][i].MsgCode,gSMAttackProcMsg[n][i].SendUser,gSMAttackProcMsg[n][i].SubCode,gSMAttackProcMsg[n][i].SubCode2);
+					this->ObjectStateAttackProc(&gObj[n], gSMAttackProcMsg[n][i].MsgCode, gSMAttackProcMsg[n][i].SendUser, gSMAttackProcMsg[n][i].SubCode, gSMAttackProcMsg[n][i].SubCode2);
+					gSMAttackProcMsg[n][i].Clear();
+				}
+			}
+		}
+	}
+
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
+	{
+		if (gObjIsConnected(n) != 0)
+		{
+			for (int i = 0; i < MAX_MONSTER_SEND_ATTACK_MSG; i++)
+			{
+				if (gSMAttackProcMsg[n][i].MsgCode != -1 && GetTickCount() > ((DWORD)gSMAttackProcMsg[n][i].MsgTime))
+				{
+					this->ObjectStateAttackProc(&gObj[n], gSMAttackProcMsg[n][i].MsgCode, gSMAttackProcMsg[n][i].SendUser, gSMAttackProcMsg[n][i].SubCode, gSMAttackProcMsg[n][i].SubCode2);
 					gSMAttackProcMsg[n][i].Clear();
 				}
 			}
