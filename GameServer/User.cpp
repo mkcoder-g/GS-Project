@@ -143,38 +143,22 @@ void gObjEventRunProc() // OK
 
 void gObjViewportProc() // OK
 {
-	for(int n = 0; n < MAX_OBJECT; n++)
-	{
-		gObjectManager->ObjectSetStateCreate(n);
-	}
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++) gObjectManager->ObjectSetStateCreate(n);
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++) gObjectManager->ObjectSetStateCreate(n);
 
-	for(int n = 0; n < MAX_OBJECT; n++)
-	{
-		gObjViewportListDestroy(n);
-	}
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++) gObjViewportListDestroy(n);
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++) gObjViewportListDestroy(n);
 
-	for(int n = 0; n < MAX_OBJECT; n++)
-	{
-		gObjViewportListCreate(n);
-	}
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++) gObjViewportListCreate(n);
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++) gObjViewportListCreate(n);
 
-	for(int n = 0; n < MAX_OBJECT; n++)
-	{
-		gObjViewportListProtocol(n);
-	}
+	for (int n = OBJECT_START_MONSTER; n < MAX_OBJECT_MONSTER; n++) gObjViewportListProtocol(n);
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++) gObjViewportListProtocol(n);
 
-	for(int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
+	for (int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
 	{
 		gPersonalShop->GCPShopViewportSend(n);
-	}
-
-	for(int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
-	{
 		gObj[n].PShopItemChange = 0;
-	}
-
-	for(int n = OBJECT_START_USER; n < MAX_OBJECT; n++)
-	{
 		gObjViewportUnionUpdate(n);
 	}
 
@@ -2957,225 +2941,233 @@ void gObjAddAttackProcMsgSendDelay(LPOBJ lpObj,int MsgCode,int SendUser,int MsgT
 
 void gObjSecondProc() // OK
 {
-	for(int n=0;n < MAX_OBJECT;n++)
+	int loopRanges[2][2] = {
+		{OBJECT_START_MONSTER, MAX_OBJECT_MONSTER},
+		{OBJECT_START_USER, MAX_OBJECT}
+	};
+
+	for (int r = 0; r < 2; r++)
 	{
-		LPOBJ lpObj = &gObj[n];
-
-		if(lpObj->Connected > OBJECT_LOGGED)
+		for (int n = loopRanges[r][0]; n < loopRanges[r][1]; n++)
 		{
-			if(lpObj->MapServerMoveQuit == 1)
+			LPOBJ lpObj = &gObj[n];
+
+			if (lpObj->Connected > OBJECT_LOGGED)
 			{
-				if(GetTickCount() - lpObj->MapServerMoveQuitTickCount > 30000)
+				if (lpObj->MapServerMoveQuit == 1)
 				{
-					gObjDel(lpObj->Index);
-					continue;
-				}
-			}
-
-			gObjSkillUseProc(lpObj);
-
-			if(lpObj->Type == OBJECT_MONSTER)
-			{
-				if(lpObj->Class == 275)
-				{
-					gKalima->KalimaRefillHP(lpObj);
-					continue;
-				}
-				
-				if(lpObj->Class == 278)
-				{
-					gLifeStone->FindTarget(lpObj->Index);
-					continue;
-				}
-
-				if(lpObj->Class == 283)
-				{
-					gGuardianStatue->FindTarget(lpObj->Index);
-					continue;
-				}
-
-				if(lpObj->Class == 288)
-				{
-					gCannonTower->FindTarget(lpObj->Index);
-					continue;
-				}
-
-				if(lpObj->Attribute == ATTRIBUTE_KALIMA)
-				{
-					gKalima->MainProc(lpObj);
-					continue;
-				}
-
-				if(lpObj->MonsterDeleteTime != 0 && GetTickCount() >= lpObj->MonsterDeleteTime)
-				{
-					gObjDel(lpObj->Index);
-					continue;
-				}
-			}
-			if(lpObj->Type == OBJECT_NPC)
-			{
-				if(gServerInfo->m_ServerType == 1)
-				{
-					if(lpObj->Class >= 204 && lpObj->Class <= 209)
+					if (GetTickCount() - lpObj->MapServerMoveQuitTickCount > 30000)
 					{
-						gCrywolf->CrywolfNpcAct(lpObj->Index);
-					}
-
-					if(lpObj->Class == 216)
-					{
-						gCastleSiegeCrown->CastleSiegeCrownAct(lpObj->Index);
-						continue;
-					}
-				
-					if(lpObj->Class == 217 || lpObj->Class == 218)
-					{
-						gCastleSiegeCrownSwitch->CastleSiegeCrownSwitchAct(lpObj->Index);
+						gObjDel(lpObj->Index);
 						continue;
 					}
 				}
 
-				if(lpObj->Class == 221 || lpObj->Class == 222)
-				{
-					gCastleSiegeWeapon->CastleSiegeWeaponAct(lpObj->Index);
-				}
-			}
+				gObjSkillUseProc(lpObj);
 
-			if(lpObj->Type == OBJECT_USER)
-			{
-				if(lpObj->Inventory[INVENTORY_SLOT_WING].IsItem() == 0 && lpObj->Inventory[INVENTORY_SLOT_HELPER].m_Index != GET_ITEM(13,3) && lpObj->Inventory[INVENTORY_SLOT_HELPER].m_Index != GET_ITEM(13,37))
+				if (lpObj->Type == OBJECT_MONSTER)
 				{
-					if(lpObj->Map == MAP_ICARUS)
+					if (lpObj->Class == 275)
 					{
-						gObjMoveGate(lpObj->Index,22);
+						gKalima->KalimaRefillHP(lpObj);
+						continue;
 					}
 
-					if(lpObj->Map == MAP_KANTURU3 && gKanturu->GetKanturuState() < KANTURU_STATE_BATTLE_OF_NIGHTMARE)
+					if (lpObj->Class == 278)
 					{
-						gObjMoveGate(lpObj->Index,22);
+						gLifeStone->FindTarget(lpObj->Index);
+						continue;
+					}
+
+					if (lpObj->Class == 283)
+					{
+						gGuardianStatue->FindTarget(lpObj->Index);
+						continue;
+					}
+
+					if (lpObj->Class == 288)
+					{
+						gCannonTower->FindTarget(lpObj->Index);
+						continue;
+					}
+
+					if (lpObj->Attribute == ATTRIBUTE_KALIMA)
+					{
+						gKalima->MainProc(lpObj);
+						continue;
+					}
+
+					if (lpObj->MonsterDeleteTime != 0 && GetTickCount() >= lpObj->MonsterDeleteTime)
+					{
+						gObjDel(lpObj->Index);
+						continue;
 					}
 				}
-
-				gCustomAttack->SecondProc(lpObj);
-
-				gCustomStore->OnPShopSecondProc(lpObj);
-
-				gObjCheckMapTile(lpObj,3);
-
-				gCustomWindowTime->GCEventTimeSend(lpObj->Index);
-
-				GCNewHealthBarSend(lpObj);
-
-				if(lpObj->ChatLimitTime > 0)
+				if (lpObj->Type == OBJECT_NPC)
 				{
-					lpObj->ChatLimitTimeSec++;
-
-					if(lpObj->ChatLimitTimeSec > 60)
+					if (gServerInfo->m_ServerType == 1)
 					{
-						lpObj->ChatLimitTimeSec = 0;
-						lpObj->ChatLimitTime--;
-
-						if(lpObj->ChatLimitTime < 1)
+						if (lpObj->Class >= 204 && lpObj->Class <= 209)
 						{
-							lpObj->ChatLimitTime = 0;
-							gNotice->GCNoticeSend(lpObj->Index,1,0,0,0,0,0,gMessage->GetMessage(283));
+							gCrywolf->CrywolfNpcAct(lpObj->Index);
+						}
+
+						if (lpObj->Class == 216)
+						{
+							gCastleSiegeCrown->CastleSiegeCrownAct(lpObj->Index);
+							continue;
+						}
+
+						if (lpObj->Class == 217 || lpObj->Class == 218)
+						{
+							gCastleSiegeCrownSwitch->CastleSiegeCrownSwitchAct(lpObj->Index);
+							continue;
+						}
+					}
+
+					if (lpObj->Class == 221 || lpObj->Class == 222)
+					{
+						gCastleSiegeWeapon->CastleSiegeWeaponAct(lpObj->Index);
+					}
+				}
+
+				if (lpObj->Type == OBJECT_USER)
+				{
+					if (lpObj->Inventory[INVENTORY_SLOT_WING].IsItem() == 0 && lpObj->Inventory[INVENTORY_SLOT_HELPER].m_Index != GET_ITEM(13, 3) && lpObj->Inventory[INVENTORY_SLOT_HELPER].m_Index != GET_ITEM(13, 37))
+					{
+						if (lpObj->Map == MAP_ICARUS)
+						{
+							gObjMoveGate(lpObj->Index, 22);
+						}
+
+						if (lpObj->Map == MAP_KANTURU3 && gKanturu->GetKanturuState() < KANTURU_STATE_BATTLE_OF_NIGHTMARE)
+						{
+							gObjMoveGate(lpObj->Index, 22);
+						}
+					}
+
+					gCustomAttack->SecondProc(lpObj);
+
+					gCustomStore->OnPShopSecondProc(lpObj);
+
+					gObjCheckMapTile(lpObj, 3);
+
+					gCustomWindowTime->GCEventTimeSend(lpObj->Index);
+
+					GCNewHealthBarSend(lpObj);
+
+					if (lpObj->ChatLimitTime > 0)
+					{
+						lpObj->ChatLimitTimeSec++;
+
+						if (lpObj->ChatLimitTimeSec > 60)
+						{
+							lpObj->ChatLimitTimeSec = 0;
+							lpObj->ChatLimitTime--;
+
+							if (lpObj->ChatLimitTime < 1)
+							{
+								lpObj->ChatLimitTime = 0;
+								gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, gMessage->GetMessage(283));
+							}
+						}
+					}
+
+					if (lpObj->Map == MAP_CASTLE_SIEGE && gCastleSiegeSync->GetState() == CS_STATE_START)
+					{
+						if ((lpObj->X < 150 || lpObj->X > 200) || (lpObj->Y < 175 || lpObj->Y > 225))
+						{
+							if (lpObj->AccumulatedCrownAccessTime > 0)
+							{
+								lpObj->AccumulatedCrownAccessTime = (((lpObj->AccumulatedCrownAccessTime - gServerInfo->m_CastleSiegeDecayAccumulatedTimeValue) < 0) ? 0 : (lpObj->AccumulatedCrownAccessTime - gServerInfo->m_CastleSiegeDecayAccumulatedTimeValue));
+							}
+						}
+					}
+
+					gObjectManager->CharacterAutoRecuperation(lpObj);
+
+					if (lpObj->Type == OBJECT_USER && lpObj->LastTeleportTime > 0)
+					{
+						lpObj->LastTeleportTime--;
+					}
+
+					gObjDelayLifeCheck(n);
+
+					gObjectManager->CharacterItemDurationDown(lpObj);
+
+					if (lpObj->PartyNumber >= 0)
+					{
+						gParty->GCPartyLifeSend(lpObj->PartyNumber);
+					}
+
+					if (lpObj->Map == MAP_ARENA)
+					{
+						if (gBattleSoccer->CheckMapPos(lpObj) != 0)
+						{
+							gObjMoveGate(lpObj->Index, 17);
 						}
 					}
 				}
+			}
 
-				if(lpObj->Map == MAP_CASTLE_SIEGE && gCastleSiegeSync->GetState() == CS_STATE_START)
+			if (lpObj->Connected >= OBJECT_LOGGED && lpObj->Type == OBJECT_USER && lpObj->CloseCount > 0)
+			{
+				if (lpObj->CloseCount == 1)
 				{
-					if((lpObj->X < 150 || lpObj->X > 200) || (lpObj->Y < 175 || lpObj->Y > 225))
+					if (lpObj->CloseType == 1)
 					{
-						if(lpObj->AccumulatedCrownAccessTime > 0)
+						if (gObjectManager->CharacterGameClose(lpObj->Index) == 1)
 						{
-							lpObj->AccumulatedCrownAccessTime = (((lpObj->AccumulatedCrownAccessTime-gServerInfo->m_CastleSiegeDecayAccumulatedTimeValue)<0)?0:(lpObj->AccumulatedCrownAccessTime-gServerInfo->m_CastleSiegeDecayAccumulatedTimeValue));
+							GCCloseClientSend(lpObj->Index, 1);
 						}
 					}
-				}
-
-				gObjectManager->CharacterAutoRecuperation(lpObj);
-
-				if(lpObj->Type == OBJECT_USER && lpObj->LastTeleportTime > 0)
-				{
-					lpObj->LastTeleportTime--;
-				}
-
-				gObjDelayLifeCheck(n);
-
-				gObjectManager->CharacterItemDurationDown(lpObj);
-
-				if(lpObj->PartyNumber >= 0)
-				{
-					gParty->GCPartyLifeSend(lpObj->PartyNumber);
-				}
-
-				if(lpObj->Map == MAP_ARENA)
-				{
-					if(gBattleSoccer->CheckMapPos(lpObj) != 0)
+					else if (lpObj->CloseType == 0)
 					{
-						gObjMoveGate(lpObj->Index,17);
+						GCCloseClientSend(lpObj->Index, 0);
 					}
-				}
-			}
-		}
-
-		if(lpObj->Connected >= OBJECT_LOGGED && lpObj->Type == OBJECT_USER &&	lpObj->CloseCount > 0)
-		{
-			if(lpObj->CloseCount == 1)
-			{
-				if(lpObj->CloseType == 1)
-				{
-					if(gObjectManager->CharacterGameClose(lpObj->Index) == 1)
+					else if (lpObj->CloseType == 2)
 					{
-						GCCloseClientSend(lpObj->Index,1);
+						GCCloseClientSend(lpObj->Index, 2);
 					}
-				}
-				else if(lpObj->CloseType == 0)
-				{
-					GCCloseClientSend(lpObj->Index,0);
-				}
-				else if(lpObj->CloseType == 2)
-				{
-					GCCloseClientSend(lpObj->Index,2);
+					else
+					{
+						GCCloseClientSend(lpObj->Index, 2);
+					}
 				}
 				else
 				{
-					GCCloseClientSend(lpObj->Index,2);
+					gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, gMessage->GetMessage(289), (lpObj->CloseCount - 1));
 				}
-			}
-			else
-			{
-				gNotice->GCNoticeSend(lpObj->Index,1,0,0,0,0,0,gMessage->GetMessage(289),(lpObj->CloseCount-1));
+
+				lpObj->CloseCount--;
 			}
 
-			lpObj->CloseCount--;
-		}
-
-		if(lpObj->Connected > OBJECT_LOGGED && lpObj->Type == OBJECT_USER)
-		{
-			if(GetTickCount()-lpObj->AutoSaveTime > 600000)
+			if (lpObj->Connected > OBJECT_LOGGED && lpObj->Type == OBJECT_USER)
 			{
-				GDCharacterInfoSaveSend(lpObj->Index);
-				lpObj->AutoSaveTime = GetTickCount();
+				if (GetTickCount() - lpObj->AutoSaveTime > 600000)
+				{
+					GDCharacterInfoSaveSend(lpObj->Index);
+					lpObj->AutoSaveTime = GetTickCount();
+				}
+
+				gObjPKDownCheckTime(lpObj, gServerInfo->m_PKDownPlusTimePoint, 0);
+				gObjInterfaceCheckTime(lpObj);
+				gObjTimeCheckSelfDefense(lpObj);
 			}
 
-			gObjPKDownCheckTime(lpObj,gServerInfo->m_PKDownPlusTimePoint,0);
-			gObjInterfaceCheckTime(lpObj);
-			gObjTimeCheckSelfDefense(lpObj);
-		}
-
-		if(lpObj->Connected > OBJECT_OFFLINE && lpObj->Type == OBJECT_USER)
-		{
-			if(lpObj->ClientVerify == 0 && (GetTickCount()-lpObj->ConnectTickCount) > 5000)
+			if (lpObj->Connected > OBJECT_OFFLINE && lpObj->Type == OBJECT_USER)
 			{
-				gLog->Output(LOG_CONNECT,"[ObjectManager][%d] CloseClient [%s] Reason: Not verified",n,lpObj->IpAddr);
-				CloseClient(n);
-			}
+				if (lpObj->ClientVerify == 0 && (GetTickCount() - lpObj->ConnectTickCount) > 5000)
+				{
+					gLog->Output(LOG_CONNECT, "[ObjectManager][%d] CloseClient [%s] Reason: Not verified", n, lpObj->IpAddr);
+					CloseClient(n);
+				}
 
-			if((GetTickCount()-lpObj->ConnectTickCount) >= 60000)
-			{
-				gLog->Output(LOG_CONNECT,"[ObjectManager][%d] CloseClient [%s] Reason: Timeout",n,lpObj->IpAddr);
-				CloseClient(n);
+				if ((GetTickCount() - lpObj->ConnectTickCount) >= 60000)
+				{
+					gLog->Output(LOG_CONNECT, "[ObjectManager][%d] CloseClient [%s] Reason: Timeout", n, lpObj->IpAddr);
+					CloseClient(n);
+				}
 			}
 		}
 	}
