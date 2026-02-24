@@ -8,6 +8,7 @@ ATUALIZAÇÕES ANTERIORES
 
 **ATUALIZAÇÃO 2 (1.0.0)**
 > - Custom Bônus diário com interface aparecendo os itens que recebeu e os que não recebeu
+
 **ATUALIZAÇÃO 1 (1.0.0)**
 > - Custom Rank (Patentes com icones em cima do nome do player)
 > - Custom TOP 10 Ranking (Tecla F5)
