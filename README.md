@@ -11,5 +11,4 @@
 
 ### UPDATES
 
-   [### CHANGELOG]
-   (http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "### CHANGELOG")
+   [### CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "### CHANGELOG")
