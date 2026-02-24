@@ -706,6 +706,7 @@
     <ClInclude Include="LuaQueue.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="CustomRank.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerDisplayer.cpp">
@@ -1331,6 +1332,9 @@
     </ClCompile>
     <ClCompile Include="LuaQueue.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomRank.cpp">
+      <Filter>Others</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

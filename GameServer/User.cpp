@@ -78,6 +78,7 @@
 #include "Util.h"
 #include "Viewport.h"
 #include "Warehouse.h"
+#include "CustomRank.h"
 
 int gObjCount;
 int gObjMonCount;
@@ -3051,6 +3052,8 @@ void gObjSecondProc() // OK
 					gCustomStore->OnPShopSecondProc(lpObj);
 
 					gObjCheckMapTile(lpObj, 3);
+
+					gCustomRank.SendRankToViewport(n);
 
 					gCustomWindowTime->GCEventTimeSend(lpObj->Index);
 

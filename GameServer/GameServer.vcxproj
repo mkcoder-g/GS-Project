@@ -91,6 +91,7 @@
     <ClInclude Include="CustomJewelPack.h" />
     <ClInclude Include="CustomPick.h" />
     <ClInclude Include="CustomPotion.h" />
+    <ClInclude Include="CustomRank.h" />
     <ClInclude Include="CustomWindowTime.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="Friend.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="CustomJewelPack.cpp" />
     <ClCompile Include="CustomPick.cpp" />
     <ClCompile Include="CustomPotion.cpp" />
+    <ClCompile Include="CustomRank.cpp" />
     <ClCompile Include="CustomWindowTime.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="Friend.cpp" />

@@ -108,6 +108,7 @@
 #include "SkillUseArea.h"
 #include "Util.h"
 #include "WingOption.h"
+#include "CustomRank.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -256,6 +257,8 @@ void CServerInfo::ReadCustomInfo() // OK
 	gCustomBuyVip->Load(gPath->GetFullPath("Custom\\CustomBuyVip.txt"));
 
 	gCustomDailyReward->Load(gPath->GetFullPath("Custom\\CustomDailyReward.txt"));
+
+	gCustomRank.Load(gPath->GetFullPath("Custom\\CustomRank.txt"));
 
 	gCustomEventDrop->Load(gPath->GetFullPath("Custom\\CustomEventDrop.txt"));
 
