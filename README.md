@@ -10,5 +10,4 @@
   - Melhora no consumo de CPU (Redução de leitura de Monstros consultando 10000 monstros).
 
 ### UPDATES
-
-   [### CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "### CHANGELOG")
+[CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "CHANGELOG")
