@@ -254,3 +254,7 @@ GameServer/vc141.pdb
 *.pdb
 *.vcxproj
 *.tlog
+/GameServer/LOG
+/Compiled
+/Compiled
+/Compiled
