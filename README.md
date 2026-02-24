@@ -5,6 +5,9 @@ ATUALIZAÇÕES ANTERIORES
 [CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "CHANGELOG")
 
 ### ATUALIZAÇÕES POR MK CODER INICIO 23/02/2026
+
+**ATUALIZAÇÃO 2 (1.0.0)**
+> - Custom Bônus diário com interface aparecendo os itens que recebeu e os que não recebeu
 **ATUALIZAÇÃO 1 (1.0.0)**
 > - Custom Rank (Patentes com icones em cima do nome do player)
 > - Custom TOP 10 Ranking (Tecla F5)
