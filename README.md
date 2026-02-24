@@ -11,7 +11,7 @@
 
 ### UPDATES
 
-    ATUALIZAÇÃO 94 (2.5.2)
+   `    ATUALIZAÇÃO 94 (2.5.2)
     * Nova mensagem no arquivo "Data\Message.txt" [ALL VERSIONS] (740~744) [ALL VERSIONS]
     
     * Nova opção agregada em "GameServer\DATA\GameServerInfo - Character.dat". [TODAS AS VERSÕES] (CalcLuaScriptSwitch)
@@ -1870,4 +1870,4 @@
     
     * Removido o GameServerCS.
     * Removidas coisas desnecessárias de "ConnectServer\ServerList.dat"
-    * Removidas coisas desnecessárias de "Data\MapServerInfo.txt"
+    * Removidas coisas desnecessárias de "Data\MapServerInfo.txt"`
