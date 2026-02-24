@@ -4,9 +4,9 @@
 
 **ATUALIZAÇÃO 95 (2.5.2)**
 > - Custom Rank (Patentes com icones em cima do nome do player)
-- Custom TOP 10 Ranking (Tecla F5)
-- Melhora no consumo de memória (Redução de leitura de Monstros, itens, Check-in de usuarios).
-- Melhora no consumo de CPU (Redução de leitura de Monstros consultando 10000 monstros).
+> - Custom TOP 10 Ranking (Tecla F5)
+> - Melhora no consumo de memória (Redução de leitura de Monstros, itens, Check-in de usuarios).
+> - Melhora no consumo de CPU (Redução de leitura de Monstros consultando 10000 monstros).
   
 ### FIXES
 
