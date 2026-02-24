@@ -2,7 +2,7 @@
 
 ### CUSTOMIZAÇÕES
 
-**ATUALIZAÇÃO 95 (2.5.2)**
+**ATUALIZAÇÃO 1 (1.0.0)**
 > - Custom Rank (Patentes com icones em cima do nome do player)
 > - Custom TOP 10 Ranking (Tecla F5)
 > - Melhora no consumo de memória (Redução de leitura de Monstros, itens, Check-in de usuarios).
