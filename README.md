@@ -1,7 +1,10 @@
 # Desenvolvimento GameServer Season 3 Ep1
 
 ### CUSTOMIZAÇÕES
+ATUALIZAÇÕES ANTERIORES 
+[CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "CHANGELOG")
 
+### ATUALIZAÇÕES POR MK CODER INICIO 23/02/2026
 **ATUALIZAÇÃO 1 (1.0.0)**
 > - Custom Rank (Patentes com icones em cima do nome do player)
 > - Custom TOP 10 Ranking (Tecla F5)
@@ -11,5 +14,3 @@
 ### FIXES
 
 
-### UPDATES
-[CHANGELOG](http://https://github.com/mkcoder-g/GS-Project/blob/main/CHANGELOG.txt "CHANGELOG")
