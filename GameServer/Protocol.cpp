@@ -53,6 +53,8 @@
 #include "Util.h"
 #include "Viewport.h"
 #include "Warehouse.h"
+#include "CustomRankingTotal.h"
+
 
 void ProtocolCore(BYTE head,BYTE* lpMsg,int size,int aIndex,int encrypt,int serial) // OK
 {
@@ -545,6 +547,9 @@ void ProtocolCore(BYTE head,BYTE* lpMsg,int size,int aIndex,int encrypt,int seri
 					break;
 				case 0x30:
 					CGOptionDataRecv((PMSG_OPTION_DATA_RECV*)lpMsg,aIndex);
+					break;
+				case 0xE5:
+					gCustomRankingTotal.CGCustomRankingRecv((PMSG_CUSTOM_RANKING_RECV*)lpMsg, aIndex);
 					break;
 			}
 			break;

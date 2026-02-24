@@ -8,10 +8,13 @@
 
 class CQueryManager
 {
+	
+	SingletonInstance(CQueryManager)
+
+public:
+
 	CQueryManager();
 	virtual ~CQueryManager();
-	SingletonInstance(CQueryManager)
-public:
 	bool Connect(char* odbc,char* user,char* pass);
 	bool GetStatus();
 	void Disconnect();

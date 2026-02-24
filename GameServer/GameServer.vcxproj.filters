@@ -707,6 +707,7 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="CustomRank.h" />
+    <ClInclude Include="CustomRankingTotal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerDisplayer.cpp">
@@ -1334,6 +1335,9 @@
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="CustomRank.cpp">
+      <Filter>Others</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomRankingTotal.cpp">
       <Filter>Others</Filter>
     </ClCompile>
   </ItemGroup>
