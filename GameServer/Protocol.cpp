@@ -54,6 +54,7 @@
 #include "Viewport.h"
 #include "Warehouse.h"
 #include "CustomRankingTotal.h"
+#include "CustomDailyReward.h"
 
 
 void ProtocolCore(BYTE head,BYTE* lpMsg,int size,int aIndex,int encrypt,int serial) // OK
@@ -550,6 +551,12 @@ void ProtocolCore(BYTE head,BYTE* lpMsg,int size,int aIndex,int encrypt,int seri
 					break;
 				case 0xE5:
 					gCustomRankingTotal.CGCustomRankingRecv((PMSG_CUSTOM_RANKING_RECV*)lpMsg, aIndex);
+					break;
+				case 0x5A:
+					gCustomDailyReward->CGCustomDailyRewardRecv((PMSG_DAILY_REWARD_CLAIM_RECV*)lpMsg, aIndex);
+					break;
+				case 0x5B:
+					gCustomDailyReward->CGCustomDailyRewardDataRecv((PMSG_DAILY_REWARD_DATA_RECV*)lpMsg, aIndex);
 					break;
 			}
 			break;

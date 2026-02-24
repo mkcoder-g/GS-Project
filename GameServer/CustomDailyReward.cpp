@@ -1,93 +1,98 @@
-// CustomDailyReward.cpp: implementation of the CCustomDailyReward class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#include "stdafx.h"
+#include "stdafx.h" 
 #include "CustomDailyReward.h"
-#include "GameMain.h"
-#include "ItemBagManager.h"
+#include "ReadFile.h" 
+#include "Util.h"
+#include "ItemManager.h" 
 #include "Message.h"
 #include "Notice.h"
-#include "ReadFile.h"
-#include "Util.h"
+#include "QueryManager.h"
+#include "PcPoint.h"
+#include "DSProtocol.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-CCustomDailyReward::CCustomDailyReward() // OK
+CCustomDailyReward::CCustomDailyReward()
 {
-	this->m_CustomDailyReward.clear();
+	this->Init();
 }
 
-CCustomDailyReward::~CCustomDailyReward() // OK
+CCustomDailyReward::~CCustomDailyReward()
 {
-
 }
 
-void CCustomDailyReward::Load(char* path) // OK
+void CCustomDailyReward::Init()
+{
+	this->m_DailyRewardInfo.clear();
+}
+
+void CCustomDailyReward::Load(char* path)
 {
 	CReadFile* lpReadFile = new CReadFile;
 
-	if(lpReadFile == 0)
+	if (lpReadFile == 0)
 	{
-		ErrorMessageBox(READ_FILE_ALLOC_ERROR,path);
 		return;
 	}
 
-	if(lpReadFile->SetBuffer(path) == 0)
+	if (lpReadFile->SetBuffer(path) == 0)
 	{
 		ErrorMessageBox(lpReadFile->GetLastError());
 		delete lpReadFile;
 		return;
 	}
 
-	this->m_CustomDailyReward.clear();
+	this->Init();
 
 	try
 	{
-		while(true)
+		while (true)
 		{
-			if(lpReadFile->GetToken() == TOKEN_END)
+			if (lpReadFile->GetToken() == TOKEN_END)
 			{
 				break;
 			}
 
-			if(strcmp("end",lpReadFile->GetString()) == 0)
+			int section = lpReadFile->GetNumber();
+
+			while (true)
 			{
-				break;
+				if (lpReadFile->GetToken() == TOKEN_END)
+				{
+					break;
+				}
+
+				if (section == 0)
+				{
+					if (strcmp("end", lpReadFile->GetString()) == 0)
+					{
+						break;
+					}
+
+					DAILY_REWARD_INFO info;
+
+					info.Day = lpReadFile->GetNumber();
+					info.Type = lpReadFile->GetAsNumber();
+
+					int ItemSection = lpReadFile->GetAsNumber();
+					int ItemType = lpReadFile->GetAsNumber();
+
+					info.ItemIndex = GET_ITEM(ItemSection, ItemType);
+
+					info.Level = lpReadFile->GetAsNumber();
+					info.Skill = lpReadFile->GetAsNumber();
+					info.Luck = lpReadFile->GetAsNumber();
+					info.Option = lpReadFile->GetAsNumber();
+					info.Exc = lpReadFile->GetAsNumber();
+					info.Amount = lpReadFile->GetAsNumber();
+
+					this->m_DailyRewardInfo.insert(std::pair<int, DAILY_REWARD_INFO>(info.Day, info));
+				}
+				else
+				{
+					break;
+				}
 			}
-
-			DAILY_REWARD_INFO info;
-
-			memset(&info,0,sizeof(info));
-
-			info.Index = lpReadFile->GetNumber();
-			
-			info.Month = lpReadFile->GetAsNumber();
-			
-			info.Day = lpReadFile->GetAsNumber();
-			
-			info.MinOnlineTime = lpReadFile->GetAsNumber();
-			
-			info.MinLevel = lpReadFile->GetAsNumber();
-			
-			info.MaxLevel = lpReadFile->GetAsNumber();
-			
-			info.MinReset = lpReadFile->GetAsNumber();
-			
-			info.MaxReset = lpReadFile->GetAsNumber();
-			
-			info.AccountLevel = lpReadFile->GetAsNumber();
-			
-			info.MessageReward = lpReadFile->GetAsNumber();
-			
-			info.BagSpecial = lpReadFile->GetAsNumber();
-
-			this->m_CustomDailyReward.insert(std::pair<int,DAILY_REWARD_INFO>(info.Index,info));
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		ErrorMessageBox(lpReadFile->GetLastError());
 	}
@@ -95,99 +100,182 @@ void CCustomDailyReward::Load(char* path) // OK
 	delete lpReadFile;
 }
 
-void CCustomDailyReward::DGDailyRewardCheckRecv(SDHP_DAILY_REWARD_INFO_RECV* lpMsg) // OK
+bool CCustomDailyReward::GetRewardInfo(int day, DAILY_REWARD_INFO* lpInfo)
 {
-	if(gObjIsAccountValid(lpMsg->aIndex,lpMsg->account) == 0)
+	std::map<int, DAILY_REWARD_INFO>::iterator it = this->m_DailyRewardInfo.find(day);
+
+	if (it != this->m_DailyRewardInfo.end())
 	{
-		LogAdd(LOG_RED,"[DGDailyRewardCheckRecv] Invalid Account [%d](%s)",lpMsg->aIndex,lpMsg->account);
-		CloseClient(lpMsg->aIndex);
-		return;
+		(*lpInfo) = it->second;
+		return true;
 	}
 
-	LPOBJ lpObj = &gObj[lpMsg->aIndex];
-
-	if(lpMsg->result != 0)
-	{
-		std::map<int,DAILY_REWARD_INFO>::iterator it = this->m_CustomDailyReward.find(lpMsg->index);
-
-		if(it != this->m_CustomDailyReward.end())
-		{
-			gItemBagManager->DropItemBySpecialValue(it->second.BagSpecial,-1,-1,lpObj,lpObj->Map,lpObj->X,lpObj->Y);
-
-			if(it->second.MessageReward != -1)
-			{
-				gNotice->GCNoticeSend(lpObj->Index,1,0,0,0,0,0,gMessage->GetMessage(it->second.MessageReward),lpObj->Name);
-			}
-
-			GCServerCommandSend(lpObj->Index,0,lpObj->X,lpObj->Y,0);
-		}
-	}
+	return false;
 }
 
-void CCustomDailyReward::GDDailyRewardCheckSend(int aIndex) // OK
+// Funções Vazias para enganar o DSProtocol.cpp
+void CCustomDailyReward::DGDailyRewardCheckRecv(SDHP_DAILY_REWARD_INFO_RECV* lpMsg)
 {
+}
+
+void CCustomDailyReward::GDDailyRewardCheckSend(int aIndex)
+{
+}
+
+// ==============================================================
+// FUNÇÃO 1: RECEBE O CLIQUE E ENTREGA O PRÉMIO
+// ==============================================================
+// ==============================================================
+// FUNÇÃO 1: RECEBE O CLIQUE E ENTREGA O PRÉMIO (ATUALIZADA)
+// ==============================================================
+void CCustomDailyReward::CGCustomDailyRewardRecv(PMSG_DAILY_REWARD_CLAIM_RECV* lpMsg, int aIndex)
+{
+	if (gObjIsConnected(aIndex) == 0) return;
+
 	LPOBJ lpObj = &gObj[aIndex];
 
-	if(gObjIsConnectedGP(aIndex) == 0)
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	DAILY_REWARD_INFO info;
+	if (this->GetRewardInfo(st.wDay, &info) == false)
 	{
+		gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Nenhuma recompensa configurada para hoje.");
 		return;
 	}
 
-	_SYSTEMTIME tmToDay;
-
-	GetLocalTime(&tmToDay);
-
-	for(std::map<int,DAILY_REWARD_INFO>::iterator it = this->m_CustomDailyReward.begin(); it != this->m_CustomDailyReward.end(); it++)
+	// ==========================================================
+	// NOVO: Verifica espaço no inventário ANTES de ir à DB!
+	// ==========================================================
+	if (info.Type == DAILY_REWARD_ITEM)
 	{
-		if(it->second.Month != -1 && it->second.Month != tmToDay.wMonth)
+		if (gItemManager->CheckItemInventorySpace(lpObj, info.ItemIndex) == 0)
 		{
-			continue;
+			gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Inventario cheio! Liberte espaco e tente novamente.");
+			return; // Pára aqui, para não queimar o dia do jogador!
 		}
-
-		if(it->second.Day != -1 && it->second.Day != tmToDay.wDay)
-		{
-			continue;
-		}
-
-		if(it->second.MinLevel != -1 && it->second.MinLevel > lpObj->Level)
-		{
-			continue;
-		}
-
-		if(it->second.MaxLevel != -1 && it->second.MaxLevel < lpObj->Level)
-		{
-			continue;
-		}
-
-		if(it->second.MinReset != -1 && it->second.MinReset > lpObj->Reset)
-		{
-			continue;
-		}
-
-		if(it->second.MaxReset != -1 && it->second.MaxReset < lpObj->Reset)
-		{
-			continue;
-		}
-
-		if(it->second.AccountLevel != -1 && it->second.AccountLevel > lpObj->AccountLevel)
-		{
-			continue;
-		}
-
-		SDHP_DAILY_REWARD_INFO_SEND pMsg;
-
-		pMsg.header.set(0x16,sizeof(pMsg));
-
-		pMsg.aIndex = aIndex;
-
-		memcpy(pMsg.account,gObj[aIndex].Account,sizeof(pMsg.account));
-
-		memcpy(pMsg.name,gObj[aIndex].Name,sizeof(pMsg.name));
-
-		pMsg.index = it->second.Index;
-
-		pMsg.MinOnlineTime = it->second.MinOnlineTime;
-
-		gDataServerConnection.DataSend((BYTE*)&pMsg,pMsg.header.size);
 	}
+
+	char szODBC[32] = { 0 };
+	char szUser[32] = { 0 };
+	char szPass[32] = { 0 };
+
+	GetPrivateProfileString("CustomRanking", "ODBC", "MuOnline", szODBC, sizeof(szODBC), ".\\Data\\GameServerInfo - Custom.dat");
+	GetPrivateProfileString("CustomRanking", "User", "sa", szUser, sizeof(szUser), ".\\Data\\GameServerInfo - Custom.dat");
+	GetPrivateProfileString("CustomRanking", "Pass", "", szPass, sizeof(szPass), ".\\Data\\GameServerInfo - Custom.dat");
+
+	CQueryManager CustomDB;
+
+	if (CustomDB.Connect(szODBC, szUser, szPass) == false)
+	{
+		gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Erro de BD. Tente novamente mais tarde.");
+		return;
+	}
+
+	if (CustomDB.ExecQuery("SELECT * FROM CustomDailyReward WHERE AccountID='%s' AND Year=%d AND Month=%d AND Day=%d", lpObj->Account, st.wYear, st.wMonth, st.wDay))
+	{
+		if (CustomDB.Fetch() != SQL_NO_DATA)
+		{
+			gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Você ja recebeu o prêmio de hoje!");
+			CustomDB.Close();
+			CustomDB.Disconnect();
+			return;
+		}
+	}
+	CustomDB.Close();
+
+	// Grava na DB
+	CustomDB.ExecQuery("INSERT INTO CustomDailyReward (AccountID, Year, Month, Day) VALUES ('%s', %d, %d, %d)", lpObj->Account, st.wYear, st.wMonth, st.wDay);
+	CustomDB.Close();
+	CustomDB.Disconnect();
+
+	// Entrega do Prémio Atualizada
+	if (info.Type == DAILY_REWARD_ITEM)
+	{
+		BYTE SocketOption[5] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+		// NOVO: Código '0xEB' cria o item imediatamente dentro do Inventário!
+		GDCreateItemSend(lpObj->Index, 0xEB, 0, 0, info.ItemIndex, info.Level, 0, info.Skill, info.Luck, info.Option, lpObj->Index, info.Exc, 0, 0, 0, SocketOption, 0xFF, 0);
+
+		gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Confira seu iventário!");
+	}
+	else if (info.Type == DAILY_REWARD_ZEN)
+	{
+		if ((lpObj->Money + info.Amount) > 2000000000) lpObj->Money = 2000000000;
+		else lpObj->Money += info.Amount;
+
+		GCMoneySend(lpObj->Index, lpObj->Money);
+		gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Você recebeu %d Zen!", info.Amount);
+	}
+	else if (info.Type == DAILY_REWARD_PCPOINT)
+	{
+		gPcPoint->GDPcPointAddPointSaveSend(lpObj->Index, info.Amount);
+		gNotice->GCNoticeSend(lpObj->Index, 1, 0, 0, 0, 0, 0, "[Bônus Diário] Você recebeu %d PC Points!", info.Amount);
+	}
+
+	// ==========================================================
+	// NOVO: Mensagem Global (Texto Amarelo Padrão do Sistema)
+	// ==========================================================
+	gNotice->GCNoticeSendToAll(0, 0, 0, 0, 0, 0, "[Bônus Diário] O jogador %s coletou o seu bônus diario!", lpObj->Name);
+}
+
+// ==============================================================
+// FUNÇÃO 2: MANDA O CALENDÁRIO PARA O CLIENTE
+// ==============================================================
+void CCustomDailyReward::CGCustomDailyRewardDataRecv(PMSG_DAILY_REWARD_DATA_RECV* lpMsg, int aIndex)
+{
+	if (gObjIsConnected(aIndex) == 0) return;
+
+	LPOBJ lpObj = &gObj[aIndex];
+
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	char szODBC[32] = { 0 };
+	char szUser[32] = { 0 };
+	char szPass[32] = { 0 };
+
+	GetPrivateProfileString("CustomRanking", "ODBC", "MuOnline", szODBC, sizeof(szODBC), ".\\Data\\GameServerInfo - Custom.dat");
+	GetPrivateProfileString("CustomRanking", "User", "sa", szUser, sizeof(szUser), ".\\Data\\GameServerInfo - Custom.dat");
+	GetPrivateProfileString("CustomRanking", "Pass", "", szPass, sizeof(szPass), ".\\Data\\GameServerInfo - Custom.dat");
+
+	CQueryManager CustomDB;
+	bool claimedDays[32] = { false };
+
+	if (CustomDB.Connect(szODBC, szUser, szPass))
+	{
+		if (CustomDB.ExecQuery("SELECT Day FROM CustomDailyReward WHERE AccountID='%s' AND Year=%d AND Month=%d", lpObj->Account, st.wYear, st.wMonth))
+		{
+			while (CustomDB.Fetch() != SQL_NO_DATA)
+			{
+				int claimedDay = CustomDB.GetAsInteger("Day");
+				if (claimedDay >= 1 && claimedDay <= 31)
+				{
+					claimedDays[claimedDay] = true;
+				}
+			}
+		}
+		CustomDB.Close();
+		CustomDB.Disconnect();
+	}
+
+	PMSG_DAILY_REWARD_DATA_SEND pMsg;
+	pMsg.header.set(0xF3, 0x5B, sizeof(pMsg));
+	pMsg.CurrentDay = (BYTE)st.wDay;
+	pMsg.Count = 0;
+
+	for (std::map<int, DAILY_REWARD_INFO>::iterator it = this->m_DailyRewardInfo.begin(); it != this->m_DailyRewardInfo.end(); it++)
+	{
+		if (pMsg.Count >= 31) break;
+
+		pMsg.RewardList[pMsg.Count].Day = it->second.Day;
+		pMsg.RewardList[pMsg.Count].RewardType = it->second.Type;
+		pMsg.RewardList[pMsg.Count].ItemIndex = it->second.ItemIndex;
+		pMsg.RewardList[pMsg.Count].ItemLevel = it->second.Level;
+		pMsg.RewardList[pMsg.Count].Amount = it->second.Amount;
+		pMsg.RewardList[pMsg.Count].Claimed = claimedDays[it->second.Day] ? 1 : 0;
+
+		pMsg.Count++;
+	}
+
+	DataSend(aIndex, (BYTE*)&pMsg, sizeof(pMsg));
 }
