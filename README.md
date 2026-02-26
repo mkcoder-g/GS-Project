@@ -6,7 +6,7 @@ ATUALIZAÇÕES ANTERIORES
 
 ### ATUALIZAÇÕES POR MK CODER INICIO 23/02/2026
 
-**ATUALIZAÇÃO 2 (1.0.0)** title="24/02/2026">24/02/2026</abbr>
+**ATUALIZAÇÃO 2 (1.0.0)** <abbr title="24/02/2026">24/02/2026</abbr>
 > - Custom Bônus diário com interface aparecendo os itens que recebeu e os que não recebeu
 
 **ATUALIZAÇÃO 1 (1.0.0)**
